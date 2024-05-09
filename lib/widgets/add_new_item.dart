@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:flutter/widgets.dart';
+import 'package:http/http.dart' as http;
 import 'package:venom_shopping_app/data/categories.dart';
 import 'package:venom_shopping_app/models/category.dart';
 import 'package:venom_shopping_app/models/grocery_item.dart';
@@ -24,14 +26,19 @@ class _NewItemState extends State<NewItem> {
   void  _saveItem(){
       if(_formKey.currentState!.validate()){
           _formKey.currentState!.save();
-          Navigator.of(context).pop(
-            GroceryItem(
-              id: DateTime.now().toString(),
-              name: _enteredName, 
-              quantity: _enteredQuantity,
-              category: _selectedCategory
-              ),
-            );
+          final url = Uri.https('venom-shopping-app-default-rtdb.firebaseio.com', 'venom-shopping-list.json');
+          http.post(url, headers: {
+            'Content-Type': 'application/json',
+          }, 
+          body: json.encode(
+            {
+              'name': _enteredName, 
+              'quantity': _enteredQuantity,
+              'category': _selectedCategory.title,
+            },
+          ),
+          );
+          // Navigator.of(context).pop();
       }
   }
 
